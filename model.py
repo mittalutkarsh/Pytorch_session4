@@ -16,32 +16,41 @@ class MNISTConvNet(nn.Module):
     - 2 fully connected layers with dropout
     """
     
-    def __init__(self):
+    def __init__(self, kernel_config):
+        """
+        Initialize the network with configurable kernel sizes.
+        
+        Args:
+            kernel_config (list): List of integers specifying number of kernels
+                                for each conv layer [k1, k2, k3, k4]
+        """
         super(MNISTConvNet, self).__init__()
+        
+        k1, k2, k3, k4 = kernel_config
         
         self.conv_layers = nn.Sequential(
             # First conv layer
-            nn.Conv2d(1, 32, kernel_size=3, padding=1),
+            nn.Conv2d(1, k1, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2),
             
             # Second conv layer
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.Conv2d(k1, k2, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2),
             
             # Third conv layer
-            nn.Conv2d(64, 64, kernel_size=3, padding=1),
+            nn.Conv2d(k2, k3, kernel_size=3, padding=1),
             nn.ReLU(),
             
             # Fourth conv layer
-            nn.Conv2d(64, 32, kernel_size=3, padding=1),
+            nn.Conv2d(k3, k4, kernel_size=3, padding=1),
             nn.ReLU(),
         )
         
         self.fc_layers = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(32 * 7 * 7, 128),
+            nn.Linear(k4 * 7 * 7, 128),
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(128, 10)

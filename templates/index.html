@@ -1,69 +1,124 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MNIST Training Monitor</title>
+    <title>MNIST Model Comparison</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>MNIST CNN Training Progress</h1>
+        <h1>MNIST CNN Model Comparison</h1>
+        
+        <div class="model-config">
+            <div class="model-form">
+                <h2>Model 1 Configuration</h2>
+                <input type="number" id="m1k1" placeholder="Kernel 1 (e.g., 16)" value="16">
+                <input type="number" id="m1k2" placeholder="Kernel 2 (e.g., 32)" value="32">
+                <input type="number" id="m1k3" placeholder="Kernel 3 (e.g., 64)" value="64">
+                <input type="number" id="m1k4" placeholder="Kernel 4 (e.g., 32)" value="32">
+                <button onclick="startTraining('model1')">Train Model 1</button>
+            </div>
+            
+            <div class="model-form">
+                <h2>Model 2 Configuration</h2>
+                <input type="number" id="m2k1" placeholder="Kernel 1 (e.g., 8)" value="8">
+                <input type="number" id="m2k2" placeholder="Kernel 2 (e.g., 8)" value="8">
+                <input type="number" id="m2k3" placeholder="Kernel 3 (e.g., 8)" value="8">
+                <input type="number" id="m2k4" placeholder="Kernel 4 (e.g., 8)" value="8">
+                <button onclick="startTraining('model2')">Train Model 2</button>
+            </div>
+        </div>
+
         <div id="loss-plot"></div>
         <div id="accuracy-plot"></div>
     </div>
 
     <script>
+        function getKernelConfig(modelId) {
+            const prefix = modelId === 'model1' ? 'm1' : 'm2';
+            return [
+                parseInt(document.getElementById(prefix + 'k1').value),
+                parseInt(document.getElementById(prefix + 'k2').value),
+                parseInt(document.getElementById(prefix + 'k3').value),
+                parseInt(document.getElementById(prefix + 'k4').value)
+            ];
+        }
+
+        function startTraining(modelId) {
+            const kernelConfig = getKernelConfig(modelId);
+            fetch('/start_training', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model_id: modelId,
+                    kernel_config: kernelConfig
+                }),
+            });
+        }
+
         function updatePlots() {
             fetch('/data')
                 .then(response => response.json())
                 .then(data => {
-                    const lossTrace = {
-                        x: data.epochs,
-                        y: data.losses,
-                        mode: 'lines',
-                        name: 'Loss'
-                    };
-
-                    const trainAccTrace = {
-                        x: data.epochs,
-                        y: data.train_accuracies,
-                        mode: 'lines+markers',
-                        name: 'Training Accuracy',
-                        line: {
-                            width: 2
-                        },
-                        marker: {
-                            size: 6
+                    const traces = [];
+                    
+                    // Add traces for both models
+                    ['model1', 'model2'].forEach((modelId, idx) => {
+                        const history = data.histories[modelId];
+                        const config = data.configs[modelId];
+                        
+                        if (history.epochs.length > 0) {
+                            traces.push({
+                                x: history.epochs,
+                                y: history.losses,
+                                mode: 'lines',
+                                name: `${modelId} Loss (${config.join(',')})`
+                            });
                         }
-                    };
+                    });
 
-                    const valAccTrace = {
-                        x: data.epochs,
-                        y: data.val_accuracies,
-                        mode: 'lines+markers',
-                        name: 'Validation Accuracy',
-                        line: {
-                            width: 2
-                        },
-                        marker: {
-                            size: 6
+                    const accTraces = [];
+                    ['model1', 'model2'].forEach((modelId, idx) => {
+                        const history = data.histories[modelId];
+                        const config = data.configs[modelId];
+                        
+                        if (history.epochs.length > 0) {
+                            accTraces.push({
+                                x: history.epochs,
+                                y: history.train_accuracies,
+                                mode: 'lines+markers',
+                                name: `${modelId} Train Acc (${config.join(',')})`,
+                                line: { width: 2 },
+                                marker: { size: 6 }
+                            });
+                            
+                            accTraces.push({
+                                x: history.epochs,
+                                y: history.val_accuracies,
+                                mode: 'lines+markers',
+                                name: `${modelId} Val Acc (${config.join(',')})`,
+                                line: { dash: 'dot', width: 2 },
+                                marker: { size: 6 }
+                            });
                         }
-                    };
+                    });
 
-                    Plotly.newPlot('loss-plot', [lossTrace], {
-                        title: 'Training Loss',
+                    Plotly.newPlot('loss-plot', traces, {
+                        title: 'Training Loss Comparison',
                         xaxis: { title: 'Epoch' },
                         yaxis: { title: 'Loss' },
                         margin: { t: 40 }
                     });
 
-                    Plotly.newPlot('accuracy-plot', [trainAccTrace, valAccTrace], {
-                        title: 'Model Accuracy',
+                    Plotly.newPlot('accuracy-plot', accTraces, {
+                        title: 'Model Accuracy Comparison',
                         xaxis: { title: 'Epoch' },
                         yaxis: { 
                             title: 'Accuracy (%)',
-                            range: [90, 100],  // Set range from 90% to 100%
-                            dtick: 1  // Show tick marks every 1%
+                            range: [90, 100],
+                            dtick: 1
                         },
                         margin: { t: 40 },
                         showlegend: true,
@@ -72,11 +127,6 @@
                             y: 1,
                             xanchor: 'left',
                             yanchor: 'top'
-                        },
-                        grid: {
-                            rows: 1,
-                            columns: 1,
-                            pattern: 'independent'
                         }
                     });
                 });
