@@ -12,20 +12,50 @@
         <div class="model-config">
             <div class="model-form">
                 <h2>Model 1 Configuration</h2>
-                <input type="number" id="m1k1" placeholder="Kernel 1 (e.g., 16)" value="16">
-                <input type="number" id="m1k2" placeholder="Kernel 2 (e.g., 32)" value="32">
-                <input type="number" id="m1k3" placeholder="Kernel 3 (e.g., 64)" value="64">
-                <input type="number" id="m1k4" placeholder="Kernel 4 (e.g., 32)" value="32">
+                <div class="input-group">
+                    <label>Kernel Sizes:</label>
+                    <input type="number" id="m1k1" placeholder="Kernel 1 (e.g., 16)" value="16">
+                    <input type="number" id="m1k2" placeholder="Kernel 2 (e.g., 32)" value="32">
+                    <input type="number" id="m1k3" placeholder="Kernel 3 (e.g., 64)" value="64">
+                    <input type="number" id="m1k4" placeholder="Kernel 4 (e.g., 32)" value="32">
+                </div>
+                <div class="input-group">
+                    <label>Optimizer:</label>
+                    <select id="m1optimizer">
+                        <option value="adam">Adam</option>
+                        <option value="sgd">SGD</option>
+                    </select>
+                    <label>Learning Rate:</label>
+                    <input type="number" id="m1lr" value="0.001" step="0.0001" min="0.0001" max="0.1">
+                </div>
                 <button onclick="startTraining('model1')">Train Model 1</button>
+                <div class="status-indicator">
+                    Status: <span id="m1-status" class="status idle">Idle</span>
+                </div>
             </div>
             
             <div class="model-form">
                 <h2>Model 2 Configuration</h2>
-                <input type="number" id="m2k1" placeholder="Kernel 1 (e.g., 8)" value="8">
-                <input type="number" id="m2k2" placeholder="Kernel 2 (e.g., 8)" value="8">
-                <input type="number" id="m2k3" placeholder="Kernel 3 (e.g., 8)" value="8">
-                <input type="number" id="m2k4" placeholder="Kernel 4 (e.g., 8)" value="8">
+                <div class="input-group">
+                    <label>Kernel Sizes:</label>
+                    <input type="number" id="m2k1" placeholder="Kernel 1 (e.g., 8)" value="8">
+                    <input type="number" id="m2k2" placeholder="Kernel 2 (e.g., 8)" value="8">
+                    <input type="number" id="m2k3" placeholder="Kernel 3 (e.g., 8)" value="8">
+                    <input type="number" id="m2k4" placeholder="Kernel 4 (e.g., 8)" value="8">
+                </div>
+                <div class="input-group">
+                    <label>Optimizer:</label>
+                    <select id="m2optimizer">
+                        <option value="adam">Adam</option>
+                        <option value="sgd">SGD</option>
+                    </select>
+                    <label>Learning Rate:</label>
+                    <input type="number" id="m2lr" value="0.001" step="0.0001" min="0.0001" max="0.1">
+                </div>
                 <button onclick="startTraining('model2')">Train Model 2</button>
+                <div class="status-indicator">
+                    Status: <span id="m2-status" class="status idle">Idle</span>
+                </div>
             </div>
         </div>
 
@@ -34,18 +64,22 @@
     </div>
 
     <script>
-        function getKernelConfig(modelId) {
+        function getModelConfig(modelId) {
             const prefix = modelId === 'model1' ? 'm1' : 'm2';
-            return [
-                parseInt(document.getElementById(prefix + 'k1').value),
-                parseInt(document.getElementById(prefix + 'k2').value),
-                parseInt(document.getElementById(prefix + 'k3').value),
-                parseInt(document.getElementById(prefix + 'k4').value)
-            ];
+            return {
+                kernel_config: [
+                    parseInt(document.getElementById(prefix + 'k1').value),
+                    parseInt(document.getElementById(prefix + 'k2').value),
+                    parseInt(document.getElementById(prefix + 'k3').value),
+                    parseInt(document.getElementById(prefix + 'k4').value)
+                ],
+                optimizer: document.getElementById(prefix + 'optimizer').value,
+                learning_rate: parseFloat(document.getElementById(prefix + 'lr').value)
+            };
         }
 
         function startTraining(modelId) {
-            const kernelConfig = getKernelConfig(modelId);
+            const config = getModelConfig(modelId);
             fetch('/start_training', {
                 method: 'POST',
                 headers: {
@@ -53,7 +87,7 @@
                 },
                 body: JSON.stringify({
                     model_id: modelId,
-                    kernel_config: kernelConfig
+                    config: config
                 }),
             });
         }
@@ -69,12 +103,13 @@
                         const history = data.histories[modelId];
                         const config = data.configs[modelId];
                         
-                        if (history.epochs.length > 0) {
+                        if (history.epochs.length > 0 && config) {
+                            const configStr = `${config.optimizer}, lr=${config.learning_rate}, kernels=[${config.kernel_config}]`;
                             traces.push({
                                 x: history.epochs,
                                 y: history.losses,
                                 mode: 'lines',
-                                name: `${modelId} Loss (${config.join(',')})`
+                                name: `${modelId} Loss (${configStr})`
                             });
                         }
                     });
@@ -84,12 +119,13 @@
                         const history = data.histories[modelId];
                         const config = data.configs[modelId];
                         
-                        if (history.epochs.length > 0) {
+                        if (history.epochs.length > 0 && config) {
+                            const configStr = `${config.optimizer}, lr=${config.learning_rate}, kernels=[${config.kernel_config}]`;
                             accTraces.push({
                                 x: history.epochs,
                                 y: history.train_accuracies,
                                 mode: 'lines+markers',
-                                name: `${modelId} Train Acc (${config.join(',')})`,
+                                name: `${modelId} Train (${configStr})`,
                                 line: { width: 2 },
                                 marker: { size: 6 }
                             });
@@ -98,7 +134,7 @@
                                 x: history.epochs,
                                 y: history.val_accuracies,
                                 mode: 'lines+markers',
-                                name: `${modelId} Val Acc (${config.join(',')})`,
+                                name: `${modelId} Val (${configStr})`,
                                 line: { dash: 'dot', width: 2 },
                                 marker: { size: 6 }
                             });
@@ -129,11 +165,38 @@
                             yanchor: 'top'
                         }
                     });
-                });
+                })
+                .catch(error => console.error('Error:', error));
         }
 
-        // Update plots every 2 seconds
-        setInterval(updatePlots, 2000);
+        // Add this function to update status indicators
+        function updateStatus() {
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    ['model1', 'model2'].forEach(modelId => {
+                        const prefix = modelId === 'model1' ? 'm1' : 'm2';
+                        const statusElement = document.getElementById(`${prefix}-status`);
+                        const status = data[modelId];
+                        
+                        // Update status class and text
+                        statusElement.className = `status ${status}`;
+                        statusElement.textContent = status.charAt(0).toUpperCase() + 
+                                                 status.slice(1);
+                        
+                        // Update button state
+                        const button = document.querySelector(`button[onclick="startTraining('${modelId}')"]`);
+                        button.disabled = status === 'running';
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Add status update to your interval
+        setInterval(() => {
+            updatePlots();
+            updateStatus();
+        }, 2000);
     </script>
 </body>
 </html> 

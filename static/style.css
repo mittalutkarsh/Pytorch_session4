@@ -23,10 +23,32 @@ h1, h2 {
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 45%;
+}
+
+.input-group {
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
 }
 
 input[type="number"] {
     width: 80px;
+    padding: 8px;
+    margin: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+select {
+    width: 100px;
     padding: 8px;
     margin: 5px;
     border: 1px solid #ddd;
@@ -52,4 +74,42 @@ button:hover {
 #loss-plot, #accuracy-plot {
     margin: 20px 0;
     height: 400px;
+}
+
+.status-indicator {
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    min-width: 80px;
+}
+
+.status.idle {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.status.running {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.status.completed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
 } 
