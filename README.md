@@ -1,89 +1,132 @@
-# MNIST CNN Training Visualizer
+# MNIST CNN Model Comparison Tool
 
-This project implements a 4-layer CNN trained on MNIST with real-time training visualization.
+A real-time visualization tool for comparing different CNN architectures on the MNIST dataset. This tool allows users to train and compare two different CNN models simultaneously with configurable kernel sizes.
 
-## Requirements
+## Features
 
-Install the required Python packages:
+- Real-time training visualization
+- Comparative analysis of two CNN models
+- Configurable kernel sizes for each model
+- Live loss and accuracy curves
+- Training and validation accuracy tracking
+- CUDA support for GPU acceleration
+- Web-based monitoring interface
 
+## Architecture
+
+The project uses a 4-layer CNN with configurable kernel sizes:
+- 4 convolutional layers with ReLU activation
+- 2 max pooling layers
+- Dropout for regularization
+- Final fully connected layers
+
+## Installation
+
+1. Clone the repository:
 ```bash
-pip install torch torchvision flask numpy matplotlib
+git clone https://github.com/mittalutkarsh/Pytorch_session4.git
+cd Pytorch_session4
 ```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Quick Start
+
+1. Start the visualization server:
+```bash
+python visualizer.py
+```
+
+2. Open your browser:
+```
+http://localhost:5000
+```
+
+3. Train two models with different configurations:
+```bash
+# Terminal 1
+python train.py --model-id model1 --kernels 16 32 64 32
+
+# Terminal 2
+python train.py --model-id model2 --kernels 8 8 8 8
+```
+
+## Model Configuration
+
+Each model can be configured with four numbers representing kernel sizes:
+```python
+[k1, k2, k3, k4]  # Number of kernels in each conv layer
+```
+
+Example configurations:
+- Standard: `16,32,64,32`
+- Uniform: `8,8,8,8`
+- Increasing: `8,16,32,64`
+- Decreasing: `64,32,16,8`
+
+## Web Interface
+
+The web interface provides:
+- Configuration forms for both models
+- Real-time loss comparison graph
+- Real-time accuracy comparison graph (90-100% range)
+- Training and validation accuracy curves
+- Model configuration display in legends
 
 ## Project Structure
 
 ```
 mnist_cnn/
+├── README.md
 ├── HowTo.md
-├── train.py
-├── model.py
-├── visualizer.py
-├── templates/
-│   └── index.html
-└── static/
-    └── style.css
+├── train.py          # Training script with CLI
+├── model.py          # CNN model definition
+├── visualizer.py     # Flask server for visualization
+├── templates/        # HTML templates
+│   └── index.html    # Web interface
+└── static/          # Static files
+    └── style.css    # CSS styling
 ```
 
-## How to Run
+## Technical Details
 
-1. First, start the visualization server:
-   ```bash
-   python visualizer.py
-   ```
+- Framework: PyTorch
+- Visualization: Plotly.js
+- Backend: Flask
+- Training: CUDA-enabled (if available)
+- Batch Size: 512
+- Learning Rate: 0.001
+- Optimizer: Adam
+- Loss Function: CrossEntropyLoss
 
-2. In a new terminal window, start the training:
-   ```bash
-   python train.py
-   ```
+## Requirements
 
-3. Open your web browser and navigate to:
-   ```
-   http://localhost:5000
-   ```
+- Python ≥ 3.8
+- PyTorch ≥ 2.0.0
+- Flask ≥ 2.0.0
+- Other dependencies in requirements.txt
 
-You will see the live training progress with:
-- Real-time loss curve
-- Real-time accuracy curve
-- Training metrics in the terminal
+## Contributing
 
-After training completes:
-- The model will automatically evaluate 10 random MNIST images
-- Results will be saved as 'static/results.png'
-- You can view the results by opening the PNG file
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-## Components
+## License
 
-- `model.py`: Defines the 4-layer CNN architecture
-- `train.py`: Handles model training and evaluation
-- `visualizer.py`: Flask server for real-time visualization
-- `templates/index.html`: Web interface for monitoring training
-- `static/style.css`: Styling for the web interface
+MIT License - see LICENSE file for details
 
-## Features
+## Author
 
-- CUDA support for GPU acceleration
-- Real-time training visualization
-- Live updating loss and accuracy curves
-- Automatic evaluation of random test samples
-- Web-based monitoring interface
+Utkarsh Mittal
 
-## Troubleshooting
+## Acknowledgments
 
-### If the visualization server fails to start:
-- Check if port 5000 is already in use
-- Try changing the port in visualizer.py
-
-### If CUDA is not working:
-- Verify PyTorch is installed with CUDA support
-- Check your GPU drivers are up to date
-
-### If plots are not updating:
-- Refresh the browser page
-- Check if both server and training scripts are running
-
-## Notes
-
-- Training progress is updated every 100 batches
-- The web interface refreshes automatically every 2 seconds
-- Training runs for 10 epochs by default (can be modified in train.py)
-- The model architecture uses 4 convolutional layers with ReLU activation
+- PyTorch team for the framework
+- MNIST dataset creators
+- Flask team for the web framework
