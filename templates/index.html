@@ -145,7 +145,18 @@
                         title: 'Training Loss Comparison',
                         xaxis: { title: 'Epoch' },
                         yaxis: { title: 'Loss' },
-                        margin: { t: 40 }
+                        margin: { t: 40, r: 200 },
+                        showlegend: true,
+                        legend: {
+                            x: 1.05,
+                            y: 1,
+                            xanchor: 'left',
+                            yanchor: 'top',
+                            bgcolor: '#fff',
+                            bordercolor: '#ddd',
+                            borderwidth: 1,
+                            font: { size: 10 }
+                        }
                     });
 
                     Plotly.newPlot('accuracy-plot', accTraces, {
@@ -156,13 +167,17 @@
                             range: [90, 100],
                             dtick: 1
                         },
-                        margin: { t: 40 },
+                        margin: { t: 40, r: 200 },
                         showlegend: true,
                         legend: {
-                            x: 0,
+                            x: 1.05,
                             y: 1,
                             xanchor: 'left',
-                            yanchor: 'top'
+                            yanchor: 'top',
+                            bgcolor: '#fff',
+                            bordercolor: '#ddd',
+                            borderwidth: 1,
+                            font: { size: 10 }
                         }
                     });
                 })
