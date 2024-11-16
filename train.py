@@ -9,6 +9,7 @@ from tqdm import tqdm
 import requests
 import logging
 import argparse
+from model import MNISTConvNet
 
 
 # Configure logging
@@ -59,7 +60,11 @@ def train_model(model_id, kernel_config):
     test_loader = DataLoader(test_dataset, batch_size=1000, shuffle=False)
 
     # Initialize model
-    model = nn.DataParallel(MNISTConvNet(kernel_config)).to(device)
+    model = MNISTConvNet(kernel_config).to(device)
+    if torch.cuda.device_count() > 1:
+        logger.info(f"Using {torch.cuda.device_count()} GPUs!")
+        model = nn.DataParallel(model)
+    
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
