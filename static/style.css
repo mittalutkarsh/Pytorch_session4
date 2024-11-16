@@ -1,0 +1,15 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+#loss-plot, #accuracy-plot {
+    margin: 20px 0;
+    height: 400px;
+} 

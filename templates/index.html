@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MNIST Training Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>MNIST CNN Training Progress</h1>
+        <div id="loss-plot"></div>
+        <div id="accuracy-plot"></div>
+    </div>
+
+    <script>
+        function updatePlots() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    const lossTrace = {
+                        x: data.epochs,
+                        y: data.losses,
+                        mode: 'lines',
+                        name: 'Loss'
+                    };
+
+                    const trainAccTrace = {
+                        x: data.epochs,
+                        y: data.train_accuracies,
+                        mode: 'lines+markers',
+                        name: 'Training Accuracy',
+                        line: {
+                            width: 2
+                        },
+                        marker: {
+                            size: 6
+                        }
+                    };
+
+                    const valAccTrace = {
+                        x: data.epochs,
+                        y: data.val_accuracies,
+                        mode: 'lines+markers',
+                        name: 'Validation Accuracy',
+                        line: {
+                            width: 2
+                        },
+                        marker: {
+                            size: 6
+                        }
+                    };
+
+                    Plotly.newPlot('loss-plot', [lossTrace], {
+                        title: 'Training Loss',
+                        xaxis: { title: 'Epoch' },
+                        yaxis: { title: 'Loss' },
+                        margin: { t: 40 }
+                    });
+
+                    Plotly.newPlot('accuracy-plot', [trainAccTrace, valAccTrace], {
+                        title: 'Model Accuracy',
+                        xaxis: { title: 'Epoch' },
+                        yaxis: { 
+                            title: 'Accuracy (%)',
+                            range: [90, 100],  // Set range from 90% to 100%
+                            dtick: 1  // Show tick marks every 1%
+                        },
+                        margin: { t: 40 },
+                        showlegend: true,
+                        legend: {
+                            x: 0,
+                            y: 1,
+                            xanchor: 'left',
+                            yanchor: 'top'
+                        },
+                        grid: {
+                            rows: 1,
+                            columns: 1,
+                            pattern: 'independent'
+                        }
+                    });
+                });
+        }
+
+        // Update plots every 2 seconds
+        setInterval(updatePlots, 2000);
+    </script>
+</body>
+</html> 

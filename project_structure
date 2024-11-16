@@ -1,0 +1,9 @@
+mnist_cnn/
+├── HowTo.md
+├── train.py
+├── model.py
+├── visualizer.py
+├── templates/
+│   └── index.html
+└── static/
+    └── style.css 
