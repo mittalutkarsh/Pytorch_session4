@@ -33,7 +33,7 @@ python visualizer.py
 
 2. Open your web browser and navigate to:
 ```
-http://localhost:5000
+http://localhost:5001
 ```
 
 3. In the web interface, you'll see two model configuration forms:

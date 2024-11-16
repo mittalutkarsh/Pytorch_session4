@@ -113,4 +113,29 @@ button:hover {
 button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+}
+
+.param-row {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.param-row label {
+    width: 120px;
+    margin-right: 10px;
+    text-align: right;
+}
+
+.param-row input,
+.param-row select {
+    flex: 1;
+    max-width: 150px;
+}
+
+.input-group {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
 } 

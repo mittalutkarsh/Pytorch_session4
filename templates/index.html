@@ -14,19 +14,37 @@
                 <h2>Model 1 Configuration</h2>
                 <div class="input-group">
                     <label>Kernel Sizes:</label>
-                    <input type="number" id="m1k1" placeholder="Kernel 1 (e.g., 16)" value="16">
-                    <input type="number" id="m1k2" placeholder="Kernel 2 (e.g., 32)" value="32">
-                    <input type="number" id="m1k3" placeholder="Kernel 3 (e.g., 64)" value="64">
-                    <input type="number" id="m1k4" placeholder="Kernel 4 (e.g., 32)" value="32">
+                    <input type="number" id="m1k1" placeholder="Kernel 1" value="16">
+                    <input type="number" id="m1k2" placeholder="Kernel 2" value="32">
+                    <input type="number" id="m1k3" placeholder="Kernel 3" value="64">
+                    <input type="number" id="m1k4" placeholder="Kernel 4" value="32">
                 </div>
                 <div class="input-group">
-                    <label>Optimizer:</label>
-                    <select id="m1optimizer">
-                        <option value="adam">Adam</option>
-                        <option value="sgd">SGD</option>
-                    </select>
-                    <label>Learning Rate:</label>
-                    <input type="number" id="m1lr" value="0.001" step="0.0001" min="0.0001" max="0.1">
+                    <label>Training Parameters:</label>
+                    <div class="param-row">
+                        <label>Optimizer:</label>
+                        <select id="m1optimizer">
+                            <option value="adam">Adam</option>
+                            <option value="sgd">SGD</option>
+                            <option value="rmsprop">RMSprop</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <label>Learning Rate:</label>
+                        <input type="number" id="m1lr" value="0.001" step="0.0001" min="0.0001" max="0.1">
+                    </div>
+                    <div class="param-row">
+                        <label>Batch Size:</label>
+                        <input type="number" id="m1batch" value="512" step="32" min="32" max="1024">
+                    </div>
+                    <div class="param-row">
+                        <label>Epochs:</label>
+                        <input type="number" id="m1epochs" value="10" step="1" min="1" max="100">
+                    </div>
+                    <div class="param-row">
+                        <label>Dropout Rate:</label>
+                        <input type="number" id="m1dropout" value="0.5" step="0.1" min="0" max="0.9">
+                    </div>
                 </div>
                 <button onclick="startTraining('model1')">Train Model 1</button>
                 <div class="status-indicator">
@@ -38,19 +56,37 @@
                 <h2>Model 2 Configuration</h2>
                 <div class="input-group">
                     <label>Kernel Sizes:</label>
-                    <input type="number" id="m2k1" placeholder="Kernel 1 (e.g., 8)" value="8">
-                    <input type="number" id="m2k2" placeholder="Kernel 2 (e.g., 8)" value="8">
-                    <input type="number" id="m2k3" placeholder="Kernel 3 (e.g., 8)" value="8">
-                    <input type="number" id="m2k4" placeholder="Kernel 4 (e.g., 8)" value="8">
+                    <input type="number" id="m2k1" placeholder="Kernel 1" value="8">
+                    <input type="number" id="m2k2" placeholder="Kernel 2" value="8">
+                    <input type="number" id="m2k3" placeholder="Kernel 3" value="8">
+                    <input type="number" id="m2k4" placeholder="Kernel 4" value="8">
                 </div>
                 <div class="input-group">
-                    <label>Optimizer:</label>
-                    <select id="m2optimizer">
-                        <option value="adam">Adam</option>
-                        <option value="sgd">SGD</option>
-                    </select>
-                    <label>Learning Rate:</label>
-                    <input type="number" id="m2lr" value="0.001" step="0.0001" min="0.0001" max="0.1">
+                    <label>Training Parameters:</label>
+                    <div class="param-row">
+                        <label>Optimizer:</label>
+                        <select id="m2optimizer">
+                            <option value="adam">Adam</option>
+                            <option value="sgd">SGD</option>
+                            <option value="rmsprop">RMSprop</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <label>Learning Rate:</label>
+                        <input type="number" id="m2lr" value="0.001" step="0.0001" min="0.0001" max="0.1">
+                    </div>
+                    <div class="param-row">
+                        <label>Batch Size:</label>
+                        <input type="number" id="m2batch" value="512" step="32" min="32" max="1024">
+                    </div>
+                    <div class="param-row">
+                        <label>Epochs:</label>
+                        <input type="number" id="m2epochs" value="10" step="1" min="1" max="100">
+                    </div>
+                    <div class="param-row">
+                        <label>Dropout Rate:</label>
+                        <input type="number" id="m2dropout" value="0.5" step="0.1" min="0" max="0.9">
+                    </div>
                 </div>
                 <button onclick="startTraining('model2')">Train Model 2</button>
                 <div class="status-indicator">
@@ -66,34 +102,70 @@
     <script>
         function getModelConfig(modelId) {
             const prefix = modelId === 'model1' ? 'm1' : 'm2';
-            return {
-                kernel_config: [
-                    parseInt(document.getElementById(prefix + 'k1').value),
-                    parseInt(document.getElementById(prefix + 'k2').value),
-                    parseInt(document.getElementById(prefix + 'k3').value),
-                    parseInt(document.getElementById(prefix + 'k4').value)
-                ],
-                optimizer: document.getElementById(prefix + 'optimizer').value,
-                learning_rate: parseFloat(document.getElementById(prefix + 'lr').value)
-            };
+            try {
+                const config = {
+                    kernel_config: [
+                        parseInt(document.getElementById(prefix + 'k1').value),
+                        parseInt(document.getElementById(prefix + 'k2').value),
+                        parseInt(document.getElementById(prefix + 'k3').value),
+                        parseInt(document.getElementById(prefix + 'k4').value)
+                    ],
+                    optimizer: document.getElementById(prefix + 'optimizer').value,
+                    learning_rate: parseFloat(document.getElementById(prefix + 'lr').value),
+                    batch_size: parseInt(document.getElementById(prefix + 'batch').value),
+                    epochs: parseInt(document.getElementById(prefix + 'epochs').value),
+                    dropout_rate: parseFloat(document.getElementById(prefix + 'dropout').value)
+                };
+                console.log(`Config for ${modelId}:`, config);  // Debug log
+                return config;
+            } catch (error) {
+                console.error(`Error getting config for ${modelId}:`, error);
+                throw error;
+            }
         }
 
         function startTraining(modelId) {
-            const config = getModelConfig(modelId);
-            fetch('/start_training', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    model_id: modelId,
-                    config: config
-                }),
-            });
+            try {
+                const config = getModelConfig(modelId);
+                const statusElement = document.getElementById(`${modelId === 'model1' ? 'm1' : 'm2'}-status`);
+                
+                // Update status to indicate starting
+                statusElement.className = 'status running';
+                statusElement.textContent = 'Starting...';
+                
+                fetch('http://localhost:5001/start_training', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model_id: modelId,
+                        config: config
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Server response:', data);
+                    if (data.status === 'error') {
+                        statusElement.className = 'status error';
+                        statusElement.textContent = 'Error: ' + data.message;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    statusElement.className = 'status error';
+                    statusElement.textContent = 'Error: ' + error.message;
+                });
+            } catch (error) {
+                console.error('Error in startTraining:', error);
+                const statusElement = document.getElementById(`${modelId === 'model1' ? 'm1' : 'm2'}-status`);
+                statusElement.className = 'status error';
+                statusElement.textContent = 'Error: ' + error.message;
+            }
         }
 
         function updatePlots() {
-            fetch('/data')
+            fetch('http://localhost:5001/data')
                 .then(response => response.json())
                 .then(data => {
                     const traces = [];
@@ -186,7 +258,7 @@
 
         // Add this function to update status indicators
         function updateStatus() {
-            fetch('/status')
+            fetch('http://localhost:5001/status')
                 .then(response => response.json())
                 .then(data => {
                     ['model1', 'model2'].forEach(modelId => {

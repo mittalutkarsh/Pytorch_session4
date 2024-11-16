@@ -16,13 +16,14 @@ class MNISTConvNet(nn.Module):
     - 2 fully connected layers with dropout
     """
     
-    def __init__(self, kernel_config):
+    def __init__(self, kernel_config, dropout_rate=0.5):
         """
-        Initialize the network with configurable kernel sizes.
+        Initialize the network with configurable kernel sizes and dropout.
         
         Args:
             kernel_config (list): List of integers specifying number of kernels
                                 for each conv layer [k1, k2, k3, k4]
+            dropout_rate (float): Dropout probability (default: 0.5)
         """
         super(MNISTConvNet, self).__init__()
         
@@ -52,7 +53,7 @@ class MNISTConvNet(nn.Module):
             nn.Flatten(),
             nn.Linear(k4 * 7 * 7, 128),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(dropout_rate),
             nn.Linear(128, 10)
         )
     
