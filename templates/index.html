@@ -95,6 +95,36 @@
             </div>
         </div>
 
+        <div class="comparison-table">
+            <h2>Model Comparison Results</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Model 1</th>
+                        <th>Model 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Training Time</td>
+                        <td id="m1-time">-</td>
+                        <td id="m2-time">-</td>
+                    </tr>
+                    <tr>
+                        <td>Final Training Accuracy</td>
+                        <td id="m1-train-acc">-</td>
+                        <td id="m2-train-acc">-</td>
+                    </tr>
+                    <tr>
+                        <td>Final Validation Accuracy</td>
+                        <td id="m1-val-acc">-</td>
+                        <td id="m2-val-acc">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
         <div id="loss-plot"></div>
         <div id="accuracy-plot"></div>
     </div>
@@ -279,10 +309,44 @@
                 .catch(error => console.error('Error:', error));
         }
 
-        // Add status update to your interval
+        // Add this function after the updateStatus function
+        function updateComparisonTable(data) {
+            ['model1', 'model2'].forEach((modelId) => {
+                const prefix = modelId === 'model1' ? 'm1' : 'm2';
+                const history = data.histories[modelId];
+                
+                // Update training time
+                const timeElement = document.getElementById(`${prefix}-time`);
+                if (history.training_time !== null) {
+                    timeElement.textContent = `${history.training_time.toFixed(2)}s`;
+                }
+                
+                // Update final accuracies
+                const trainAccElement = document.getElementById(`${prefix}-train-acc`);
+                const valAccElement = document.getElementById(`${prefix}-val-acc`);
+                
+                if (history.train_accuracies && history.train_accuracies.length > 0) {
+                    const lastTrainAcc = history.train_accuracies[history.train_accuracies.length - 1];
+                    trainAccElement.textContent = `${lastTrainAcc.toFixed(2)}%`;
+                }
+                
+                if (history.val_accuracies && history.val_accuracies.length > 0) {
+                    const lastValAcc = history.val_accuracies[history.val_accuracies.length - 1];
+                    valAccElement.textContent = `${lastValAcc.toFixed(2)}%`;
+                }
+            });
+        }
+
+        // Update the interval to include the table update
         setInterval(() => {
-            updatePlots();
-            updateStatus();
+            fetch('http://localhost:5001/data')
+                .then(response => response.json())
+                .then(data => {
+                    updatePlots(data);
+                    updateStatus();
+                    updateComparisonTable(data);
+                })
+                .catch(error => console.error('Error:', error));
         }, 2000);
     </script>
 </body>

@@ -29,14 +29,20 @@ training_histories = {
         'losses': [], 
         'train_accuracies': [],
         'val_accuracies': [],
-        'status': 'idle'  # Can be 'idle', 'running', 'completed', 'error'
+        'status': 'idle',
+        'start_time': None,
+        'end_time': None,
+        'training_time': None
     },
     'model2': {
         'epochs': [], 
         'losses': [], 
         'train_accuracies': [],
         'val_accuracies': [],
-        'status': 'idle'
+        'status': 'idle',
+        'start_time': None,
+        'end_time': None,
+        'training_time': None
     }
 }
 
@@ -76,7 +82,10 @@ def start_training():
             'losses': [], 
             'train_accuracies': [],
             'val_accuracies': [],
-            'status': 'running'
+            'status': 'running',
+            'start_time': time.time(),
+            'end_time': None,
+            'training_time': None
         }
         
         # Start training process
@@ -112,6 +121,9 @@ def update():
             history['status'] = data['status']
             if data['status'] == 'error' and 'error_message' in data:
                 logger.error(f"Model {model_id} error: {data['error_message']}")
+            elif data['status'] == 'completed':
+                history['end_time'] = time.time()
+                history['training_time'] = history['end_time'] - history['start_time']
         
         # Update metrics if provided
         if all(key in data for key in ['epoch', 'loss', 'train_accuracy', 'val_accuracy']):

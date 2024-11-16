@@ -138,4 +138,39 @@ button:disabled {
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 15px;
+}
+
+/* Add these styles for the comparison table */
+.comparison-table {
+    margin: 20px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.comparison-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.comparison-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.comparison-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.comparison-table tr:hover {
+    background-color: #f5f5f5;
 } 
