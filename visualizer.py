@@ -74,6 +74,8 @@ def start_training():
                 'message': f'{model_id} is already running'
             }), 400
         
+        # Reset process status before starting new training
+        model_processes[model_id] = None
         model_configs[model_id] = config
         
         # Clear previous training history for this model
@@ -106,6 +108,7 @@ def start_training():
         })
     except Exception as e:
         training_histories[model_id]['status'] = 'error'
+        model_processes[model_id] = None  # Reset process on error
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
@@ -121,9 +124,11 @@ def update():
             history['status'] = data['status']
             if data['status'] == 'error' and 'error_message' in data:
                 logger.error(f"Model {model_id} error: {data['error_message']}")
+                model_processes[model_id] = None  # Reset process on error
             elif data['status'] == 'completed':
                 history['end_time'] = time.time()
                 history['training_time'] = history['end_time'] - history['start_time']
+                model_processes[model_id] = None  # Reset process on completion
         
         # Update metrics if provided
         if all(key in data for key in ['epoch', 'loss', 'train_accuracy', 'val_accuracy']):
@@ -135,6 +140,7 @@ def update():
         return jsonify({'status': 'success'})
     except Exception as e:
         logger.error(f"Error in update: {str(e)}")
+        model_processes[model_id] = None  # Reset process on error
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
@@ -148,7 +154,7 @@ def get_status():
             is_running = check_process_status(process)
             if not is_running:
                 training_histories[model_id]['status'] = 'completed'
-                model_processes[model_id] = None
+                model_processes[model_id] = None  # Reset process when not running
         status[model_id] = training_histories[model_id]['status']
     return jsonify(status)
 
